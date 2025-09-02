@@ -13,19 +13,19 @@
             justify-content: center;
             height: 100vh;
             margin: 0;
-            background-color: #8B5A2B; /* Marrom terroso */
+            background-color: #8B5A2B;
             font-family: 'Arial', sans-serif;
         }
         h1 {
-            font-family: 'Rye', cursive; /* Fonte estilo western/cowboy */
-            color: #3C2005; /* Marrom escuro */
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Efeito de gravado a fogo */
+            font-family: 'Rye', cursive;
+            color: #3C2005;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             font-size: 2.5em;
             margin-bottom: 20px;
         }
         .puzzle-wrapper {
-            background-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png'); /* Textura de madeira na moldura */
-            padding: 10px; /* Moldura de 10px */
+            background-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png');
+            padding: 10px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             box-sizing: border-box;
@@ -33,17 +33,17 @@
         .puzzle-container {
             display: grid;
             grid-template-columns: repeat(3, 100px);
-            grid-column-gap: 2px; /* Espaço horizontal entre tiles */
-            grid-row-gap: 2px; /* Espaço vertical entre tiles */
-            background-color: #3C2005; /* Fundo escuro */
-            width: 304px; /* 300px tiles + 4px gaps */
+            grid-column-gap: 2px;
+            grid-row-gap: 2px;
+            background-color: #3C2005;
+            width: 304px;
         }
         .tile {
             width: 100px;
             height: 100px;
-            background-color: #D2B48C; /* Bege terroso */
-            background-size: 300px 300px; /* Tamanho total da imagem (3x100px) */
-            border: 2px solid #4A2F1A; /* Borda de madeira */
+            background-color: #D2B48C;
+            background-size: 300px 300px;
+            border: 2px solid #4A2F1A;
             border-radius: 5px;
             cursor: pointer;
             transition: transform 0.2s;
@@ -58,7 +58,7 @@
         }
         .briefing {
             display: none;
-            background-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png'); /* Moldura de madeira */
+            background-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png');
             padding: 10px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
@@ -67,29 +67,29 @@
             box-sizing: border-box;
         }
         .briefing-image {
-            background-color: #3C2005; /* Fundo escuro */
-            border: 5px solid #4A2F1A; /* Borda de madeira escura */
+            background-color: #3C2005;
+            border: 5px solid #4A2F1A;
             border-radius: 5px;
-            width: 150px; /* Imagem reduzida */
+            width: 150px;
             height: 150px;
             margin: 0 auto 10px;
             background-size: cover;
             background-position: center;
         }
         .briefing-inner {
-            background-color: #3C2005; /* Fundo escuro */
-            border: 5px solid #4A2F1A; /* Borda de madeira escura */
+            background-color: #3C2005;
+            border: 5px solid #4A2F1A;
             border-radius: 5px;
             padding: 15px;
-            min-height: 120px; /* Ajustado para o texto */
-            color: #D2B48C; /* Texto bege para contraste */
+            min-height: 120px;
+            color: #D2B48C;
             font-family: 'Arial', sans-serif;
             font-size: 1em;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
         }
         .briefing h1 {
             font-family: 'Rye', cursive;
-            color: #D2B48C; /* Mesma cor do texto do briefing */
+            color: #D2B48C;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             font-size: 1.8em;
             margin: 0 0 10px;
@@ -119,18 +119,18 @@
             }
             .puzzle-container {
                 grid-template-columns: repeat(3, 80px);
-                width: 244px; /* 240px tiles + 4px gaps */
+                width: 244px;
             }
             .tile {
                 width: 80px;
                 height: 80px;
-                background-size: 240px 240px; /* Ajuste para tiles menores */
+                background-size: 240px 240px;
             }
             .briefing {
                 max-width: 90%;
             }
             .briefing-image {
-                width: 120px; /* Imagem menor em telas pequenas */
+                width: 120px;
                 height: 120px;
             }
             .briefing-inner {
@@ -175,7 +175,7 @@
         let emptyPos = { row: size - 1, col: size - 1 };
         let currentImage = '';
         let currentBriefing = {};
-        let previousImageIndex = -1; // Para evitar repetição da foto anterior
+        let previousImageIndex = -1;
 
         const images = [
             { file: 'foto1.png', title: 'João Propício M. Barreto', text: 'Barão de São Gabriel: Combateu nas guerras do sul do Brasil (1825-1865).' },
@@ -192,7 +192,7 @@
             }
             previousImageIndex = index;
             const selected = images[index];
-            console.log('Imagem selecionada:', selected.file); // Para depuração
+            console.log('Imagem selecionada:', selected.file);
             return selected;
         }
 
@@ -201,15 +201,14 @@
             const selectedImage = selectRandomImage();
             currentImage = selectedImage.file;
             currentBriefing = { title: selectedImage.title, text: selectedImage.text };
-            let numbers = Array.from({ length: size * size - 1 }, (_, i) => i + 1);
-            numbers.push(0); // 0 representa o espaço vazio
+            let numbers = Array.from({ length: size * size }, (_, i) => i); // 0 a 8
             numbers = shuffle(numbers);
-
             for (let i = 0; i < size; i++) {
                 board[i] = [];
                 for (let j = 0; j < size; j++) {
-                    board[i][j] = numbers[i * size + j];
-                    if (board[i][j] === 0) {
+                    const index = i * size + j;
+                    board[i][j] = numbers[index];
+                    if (board[i][j] === size * size - 1) { // Último número (8) é o vazio
                         emptyPos = { row: i, col: j };
                     }
                 }
@@ -217,7 +216,7 @@
             puzzleWrapper.style.display = 'block';
             mainTitle.style.display = 'block';
             briefing.style.display = 'none';
-            setTimeout(renderBoard, 0); // Pequeno delay para garantir renderização correta
+            setTimeout(renderBoard, 0);
         }
 
         function shuffle(array) {
@@ -228,24 +227,33 @@
             return array;
         }
 
+        function getTileSize() {
+            return window.innerWidth < 600 ? 80 : 100;
+        }
+
         function renderBoard() {
             puzzle.innerHTML = '';
+            const tileSize = getTileSize();
+            const totalSize = tileSize * size;
             for (let i = 0; i < size; i++) {
                 for (let j = 0; j < size; j++) {
                     const tile = document.createElement('div');
-                    tile.className = board[i][j] === 0 ? 'tile empty' : 'tile';
-                    if (board[i][j] !== 0) {
-                        const tileNumber = board[i][j];
-                        const originalRow = Math.floor((tileNumber - 1) / size);
-                        const originalCol = (tileNumber - 1) % size;
+                    const value = board[i][j];
+                    tile.className = value === size * size - 1 ? 'tile empty' : 'tile'; // 8 é o vazio
+                    if (value !== size * size - 1) {
+                        const originalRow = Math.floor((value) / size);
+                        const originalCol = (value) % size;
                         tile.style.backgroundImage = `url('${currentImage}')`;
-                        tile.style.backgroundPosition = `-${originalCol * 100}px -${originalRow * 100}px`;
+                        tile.style.backgroundSize = `${totalSize}px ${totalSize}px`;
+                        tile.style.backgroundPosition = `-${(originalCol / (size - 1)) * 100}% -${(originalRow / (size - 1)) * 100}%`;
                         const img = new Image();
                         img.src = currentImage;
                         img.onerror = () => {
                             console.error(`Erro ao carregar a imagem: ${currentImage}`);
                         };
                     }
+                    tile.style.width = `${tileSize}px`;
+                    tile.style.height = `${tileSize}px`;
                     tile.addEventListener('click', () => {
                         moveTile(i, j);
                         if (tile.className !== 'tile empty') {
@@ -260,7 +268,7 @@
                 }
             }
             checkWin();
-            console.log('Board após render:', board); // Para depuração do estado do board
+            console.log('Board após render:', board);
         }
 
         function moveTile(row, col) {
@@ -275,7 +283,8 @@
             let isWin = true;
             for (let i = 0; i < size; i++) {
                 for (let j = 0; j < size; j++) {
-                    if (board[i][j] !== (i * size + j + 1) % (size * size)) {
+                    const expected = i * size + j;
+                    if (board[i][j] !== expected) {
                         isWin = false;
                         break;
                     }
@@ -294,7 +303,7 @@
                     briefingImage.style.backgroundImage = `url('${currentImage}')`;
                     briefingTitle.textContent = currentBriefing.title;
                     briefingText.textContent = currentBriefing.text;
-                }, 1500); // Delay de 1,5 segundos
+                }, 1500);
             }
         }
 
