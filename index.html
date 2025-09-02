@@ -258,7 +258,7 @@
                     tile.addEventListener('click', () => {
                         moveTile(i, j);
                         if (tile.className !== 'tile empty') {
-                            tapSound.play().catch(e => console.error('Erro ao tocar som de tap:', e));
+                            playTapSound();
                         }
                     });
                     puzzle.appendChild(tile);
@@ -269,13 +269,34 @@
         }
 
         function initializeAudio() {
-            // Tenta inicializar o áudio com um evento silencioso para contornar restrições
             const playSilent = () => {
                 tapSound.play().then(() => tapSound.pause()).catch(e => console.error('Erro ao inicializar som:', e));
                 finishSound.play().then(() => finishSound.pause()).catch(e => console.error('Erro ao inicializar som:', e));
             };
             document.addEventListener('touchstart', playSilent, { once: true });
             document.addEventListener('click', playSilent, { once: true });
+        }
+
+        let tapQueue = [];
+        function playTapSound() {
+            tapQueue.push(Date.now());
+            if (tapQueue.length === 1) {
+                playNextTap();
+            }
+        }
+
+        function playNextTap() {
+            if (tapQueue.length === 0) return;
+            const now = Date.now();
+            const lastTap = tapQueue[0];
+            if (now - lastTap >= 50) { // Espera mínima de 50ms entre sons
+                tapSound.currentTime = 0; // Reinicia o áudio
+                tapSound.play().catch(e => console.error('Erro ao tocar som de tap:', e));
+                tapQueue.shift();
+                setTimeout(playNextTap, 0);
+            } else {
+                setTimeout(playNextTap, 50 - (now - lastTap));
+            }
         }
 
         function moveTile(row, col) {
