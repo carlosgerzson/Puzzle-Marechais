@@ -208,8 +208,9 @@
                 for (let j = 0; j < size; j++) {
                     const index = i * size + j;
                     board[i][j] = numbers[index];
-                    if (board[i][j] === size * size - 1) { // Último número (8) é o vazio
+                    if (board[i][j] === size * size - 1) { // 8 é o vazio
                         emptyPos = { row: i, col: j };
+                        console.log(`Espaço vazio definido em: [${i}, ${j}] com valor ${board[i][j]}`);
                     }
                 }
             }
@@ -241,11 +242,11 @@
                     const value = board[i][j];
                     tile.className = value === size * size - 1 ? 'tile empty' : 'tile'; // 8 é o vazio
                     if (value !== size * size - 1) {
-                        const originalRow = Math.floor((value) / size);
-                        const originalCol = (value) % size;
+                        const originalRow = Math.floor(value / size);
+                        const originalCol = value % size;
                         tile.style.backgroundImage = `url('${currentImage}')`;
                         tile.style.backgroundSize = `${totalSize}px ${totalSize}px`;
-                        tile.style.backgroundPosition = `-${(originalCol / (size - 1)) * 100}% -${(originalRow / (size - 1)) * 100}%`;
+                        tile.style.backgroundPosition = `-${(originalCol * tileSize)}px -${(originalRow * tileSize)}px`; // Posição fixa em pixels
                         const img = new Image();
                         img.src = currentImage;
                         img.onerror = () => {
@@ -268,7 +269,7 @@
                 }
             }
             checkWin();
-            console.log('Board após render:', board);
+            console.log('Board após render:', board.map(row => [...row]), 'Empty pos:', emptyPos);
         }
 
         function moveTile(row, col) {
