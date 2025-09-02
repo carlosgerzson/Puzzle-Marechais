@@ -20,8 +20,21 @@
             font-family: 'Rye', cursive;
             color: #3C2005;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            font-size: 2.5em;
-            margin-bottom: 20px;
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+        #high-score {
+            font-family: 'Rye', cursive;
+            color: #3C2005;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            opacity: 0.7;
+            transition: opacity 0.5s;
+        }
+        #high-score.highlight {
+            opacity: 1;
+            font-size: 1.5em;
+            color: #FFD700; /* Dourado para destacar */
         }
         .puzzle-wrapper {
             background-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png');
@@ -112,7 +125,10 @@
         }
         @media (max-width: 600px) {
             h1 {
-                font-size: 2em;
+                font-size: 1.5em;
+            }
+            #high-score {
+                font-size: 1em;
             }
             .puzzle-wrapper {
                 max-width: 90%;
@@ -145,6 +161,7 @@
 </head>
 <body>
     <h1 id="main-title">MARECHAIS</h1>
+    <div id="high-score">High Score: --</div>
     <div class="puzzle-wrapper" id="puzzle-wrapper">
         <div class="puzzle-container" id="puzzle"></div>
     </div>
@@ -170,12 +187,14 @@
         const restartBtn = document.getElementById('restart');
         const tapSound = document.getElementById('tap-sound');
         const finishSound = document.getElementById('finish-sound');
+        const highScoreDisplay = document.getElementById('high-score');
         const size = 3;
         let board = [];
         let emptyPos = { row: size - 1, col: size - 1 };
         let currentImage = '';
         let currentBriefing = {};
         let previousImageIndex = -1;
+        let startTime, endTime;
 
         const images = [
             { file: 'foto1.png', title: 'João Propício M. Barreto', text: 'Barão de São Gabriel: Combateu nas guerras do sul do Brasil (1825-1865).' },
@@ -202,7 +221,7 @@
             currentImage = selectedImage.file;
             currentBriefing = { title: selectedImage.title, text: selectedImage.text };
             let numbers = Array.from({ length: size * size }, (_, i) => i); // 0 a 8
-            numbers = shuffle(numbers);
+            numbers = shuffleWithParity(numbers);
             for (let i = 0; i < size; i++) {
                 board[i] = [];
                 for (let j = 0; j < size; j++) {
@@ -214,10 +233,12 @@
                     }
                 }
             }
+            startTime = Date.now();
             puzzleWrapper.style.display = 'block';
             mainTitle.style.display = 'block';
             briefing.style.display = 'none';
             setTimeout(renderBoard, 0);
+            updateHighScore();
         }
 
         function shuffle(array) {
@@ -226,6 +247,28 @@
                 [array[i], array[j]] = [array[j], array[i]];
             }
             return array;
+        }
+
+        function getInversions(arr) {
+            let inversions = 0;
+            for (let i = 0; i < arr.length - 1; i++) {
+                for (let j = i + 1; j < arr.length; j++) {
+                    if (arr[i] > arr[j] && arr[i] !== size * size - 1 && arr[j] !== size * size - 1) {
+                        inversions++;
+                    }
+                }
+            }
+            return inversions;
+        }
+
+        function shuffleWithParity(array) {
+            let shuffled = shuffle([...array]);
+            let inversions = getInversions(shuffled);
+            while (inversions % 2 !== 0) {
+                shuffled = shuffle([...array]);
+                inversions = getInversions(shuffled);
+            }
+            return shuffled;
         }
 
         function getTileSize() {
@@ -240,7 +283,7 @@
                 for (let j = 0; j < size; j++) {
                     const tile = document.createElement('div');
                     const value = board[i][j];
-                    tile.className = value === size * size - 1 ? 'tile empty' : 'tile'; // 8 é o vazio
+                    tile.className = value === size * size - 1 ? 'tile empty' : 'tile';
                     if (value !== size * size - 1) {
                         const originalRow = Math.floor(value / size);
                         const originalCol = value % size;
@@ -258,7 +301,11 @@
                     tile.addEventListener('click', () => {
                         moveTile(i, j);
                         if (tile.className !== 'tile empty') {
-                            playTapSound();
+                            try {
+                                tapSound.play().catch(e => console.error('Erro ao tocar som de tap:', e));
+                            } catch (e) {
+                                console.error('Erro ao acessar som de tap:', e);
+                            }
                         }
                     });
                     puzzle.appendChild(tile);
@@ -266,37 +313,6 @@
             }
             checkWin();
             console.log('Board após render:', board.map(row => [...row]), 'Empty pos:', emptyPos);
-        }
-
-        function initializeAudio() {
-            const playSilent = () => {
-                tapSound.play().then(() => tapSound.pause()).catch(e => console.error('Erro ao inicializar som:', e));
-                finishSound.play().then(() => finishSound.pause()).catch(e => console.error('Erro ao inicializar som:', e));
-            };
-            document.addEventListener('touchstart', playSilent, { once: true });
-            document.addEventListener('click', playSilent, { once: true });
-        }
-
-        let tapQueue = [];
-        function playTapSound() {
-            tapQueue.push(Date.now());
-            if (tapQueue.length === 1) {
-                playNextTap();
-            }
-        }
-
-        function playNextTap() {
-            if (tapQueue.length === 0) return;
-            const now = Date.now();
-            const lastTap = tapQueue[0];
-            if (now - lastTap >= 50) { // Espera mínima de 50ms entre sons
-                tapSound.currentTime = 0; // Reinicia o áudio
-                tapSound.play().catch(e => console.error('Erro ao tocar som de tap:', e));
-                tapQueue.shift();
-                setTimeout(playNextTap, 0);
-            } else {
-                setTimeout(playNextTap, 50 - (now - lastTap));
-            }
         }
 
         function moveTile(row, col) {
@@ -319,7 +335,14 @@
                 }
             }
             if (isWin) {
-                finishSound.play().catch(e => console.error('Erro ao tocar som de finish:', e));
+                endTime = Date.now();
+                const timeTaken = (endTime - startTime) / 1000;
+                updateHighScore(timeTaken);
+                try {
+                    finishSound.play().catch(e => console.error('Erro ao tocar som de finish:', e));
+                } catch (e) {
+                    console.error('Erro ao acessar som de finish:', e);
+                }
                 setTimeout(() => {
                     puzzleWrapper.style.display = 'none';
                     mainTitle.style.display = 'none';
@@ -327,12 +350,34 @@
                     briefingImage.style.backgroundImage = `url('${currentImage}')`;
                     briefingTitle.textContent = currentBriefing.title;
                     briefingText.textContent = currentBriefing.text;
+                    highScoreDisplay.classList.add('highlight');
+                    setTimeout(() => highScoreDisplay.classList.remove('highlight'), 3000); // Destaque por 3s
                 }, 1500);
             }
         }
 
+        function updateHighScore(timeTaken) {
+            let highScore = localStorage.getItem('highScore');
+            if (highScore === null) highScore = Infinity;
+            else highScore = parseFloat(highScore);
+            if (timeTaken && timeTaken < highScore) {
+                highScore = timeTaken;
+                localStorage.setItem('highScore', highScore);
+            }
+            highScoreDisplay.textContent = `High Score: ${highScore === Infinity ? '--' : highScore.toFixed(2)}s`;
+        }
+
+        function initializeAudio() {
+            const playSilent = () => {
+                tapSound.play().then(() => tapSound.pause()).catch(e => console.error('Erro ao inicializar som:', e));
+                finishSound.play().then(() => finishSound.pause()).catch(e => console.error('Erro ao inicializar som:', e));
+            };
+            document.addEventListener('touchstart', playSilent, { once: true });
+            document.addEventListener('click', playSilent, { once: true });
+        }
+
         restartBtn.addEventListener('click', createBoard);
-        initializeAudio(); // Inicializa o áudio ao carregar
+        initializeAudio();
         createBoard();
     </script>
 </body>
