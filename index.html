@@ -246,7 +246,7 @@
                         const originalCol = value % size;
                         tile.style.backgroundImage = `url('${currentImage}')`;
                         tile.style.backgroundSize = `${totalSize}px ${totalSize}px`;
-                        tile.style.backgroundPosition = `-${(originalCol * tileSize)}px -${(originalRow * tileSize)}px`; // Posição fixa em pixels
+                        tile.style.backgroundPosition = `-${(originalCol * tileSize)}px -${(originalRow * tileSize)}px`;
                         const img = new Image();
                         img.src = currentImage;
                         img.onerror = () => {
@@ -258,11 +258,7 @@
                     tile.addEventListener('click', () => {
                         moveTile(i, j);
                         if (tile.className !== 'tile empty') {
-                            try {
-                                tapSound.play().catch(e => console.error('Erro ao tocar som de tap:', e));
-                            } catch (e) {
-                                console.error('Erro ao acessar som de tap:', e);
-                            }
+                            tapSound.play().catch(e => console.error('Erro ao tocar som de tap:', e));
                         }
                     });
                     puzzle.appendChild(tile);
@@ -270,6 +266,16 @@
             }
             checkWin();
             console.log('Board após render:', board.map(row => [...row]), 'Empty pos:', emptyPos);
+        }
+
+        function initializeAudio() {
+            // Tenta inicializar o áudio com um evento silencioso para contornar restrições
+            const playSilent = () => {
+                tapSound.play().then(() => tapSound.pause()).catch(e => console.error('Erro ao inicializar som:', e));
+                finishSound.play().then(() => finishSound.pause()).catch(e => console.error('Erro ao inicializar som:', e));
+            };
+            document.addEventListener('touchstart', playSilent, { once: true });
+            document.addEventListener('click', playSilent, { once: true });
         }
 
         function moveTile(row, col) {
@@ -292,11 +298,7 @@
                 }
             }
             if (isWin) {
-                try {
-                    finishSound.play().catch(e => console.error('Erro ao tocar som de finish:', e));
-                } catch (e) {
-                    console.error('Erro ao acessar som de finish:', e);
-                }
+                finishSound.play().catch(e => console.error('Erro ao tocar som de finish:', e));
                 setTimeout(() => {
                     puzzleWrapper.style.display = 'none';
                     mainTitle.style.display = 'none';
@@ -309,6 +311,7 @@
         }
 
         restartBtn.addEventListener('click', createBoard);
+        initializeAudio(); // Inicializa o áudio ao carregar
         createBoard();
     </script>
 </body>
